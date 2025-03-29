@@ -1,0 +1,25 @@
+{
+  "name": "tareaarreglos",
+  "version": "1.0.0",
+  "description": "Sistema para registrar notas de estudiantes",
+  "homepage": "https://github.com/mamarquezp/tareaArreglos#readme",
+  "bugs": {
+    "url": "https://github.com/mamarquezp/tareaArreglos/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mamarquezp/tareaArreglos.git"
+  },
+  "license": "ISC",
+  "author": "Mike Marquez",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "colors": "^1.4.0",
+    "inquirer": "^12.5.0",
+    "readline-sync": "^1.4.10"
+  }
+}
