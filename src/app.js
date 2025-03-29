@@ -1,3 +1,6 @@
+//Tarea: Solución de un sistema de gestión de notas para alumnos
+//Mike Alexander Márquez Paiz 2500021
+
 const readline = require('readline-sync')
 const inquirer = require('inquirer')
 require('colors')
@@ -5,6 +8,7 @@ require('colors')
 const prompt = inquirer.createPromptModule()
 
 let notas = []
+let promedios = []
 
 const obtenerOpcionesMenu = async () => {
     const opciones = [`Ingresar notas`, `Reporte de notas`, `Modificar nota`, `Limpiar datos`, `Salir`]
@@ -21,9 +25,7 @@ const obtenerOpcionesMenu = async () => {
 const ingresarNotas = async () => {
     const nombreAlumno = readline.question('Ingrese el nombre del alumno: '.green)
     const notaAlumno = [[], []]
-    const promedios = []
-    let controlBucleNotas = true
-    let suma = 0
+    let controlBucleNotas = true    
 
     do {
         const materia = readline.question('Ingrese la materia: '.green)
@@ -56,7 +58,6 @@ const ingresarNotas = async () => {
             }
         }
             notaAlumno[1].push(nota)
-            suma += nota
         
             const continuar = await prompt([{
                 type: 'list',
@@ -70,8 +71,13 @@ const ingresarNotas = async () => {
 
     } while (controlBucleNotas)
 
+    const calificaciones = notaAlumno[1]
+    const promedioCalculado = calcularPromedio(calificaciones)
+
     notas.push([nombreAlumno, notaAlumno])
     console.log('Notas ingresadas correctamente'.green)
+    promedios.push(promedioCalculado)
+    
 }
 
 const reporteDeNotas = () => {
@@ -82,17 +88,21 @@ const reporteDeNotas = () => {
 
     console.log('-------- Reporte de Notas --------'.cyan)
 
+    let totalAprobados = 0
+    let totalReprobados = 0
+
     for (let alumno of notas) { 
         const nombreAlumno = alumno[0]
         const datosNotas = alumno[1]
         const materias = datosNotas[0]
         const calificaciones = datosNotas[1]
+        const alumnoIndex = notas.indexOf(alumno)         
+        const promedio = promedios[alumnoIndex]
+
 
         console.log(`*********************************************************`.yellow)
         console.log(` Alumno: ${nombreAlumno}`.blue)
         console.log(`---------------------------------------------------------`.yellow)
-
-        let sumaNotas = 0
 
         if (materias.length === 0) {
             console.log('  (Sin materias registradas)'.grey)
@@ -101,19 +111,24 @@ const reporteDeNotas = () => {
                 const materiaActual = materias[i]
                 const notaActual = calificaciones[i]
                 const notaString = notaActual.toString()
-                const notaColoreada = notaActual >= 7 ? notaString.green : notaString.red
-                console.log(`  Materia: ${materiaActual} Nota: ${notaColoreada}`)
-                sumaNotas += notaActual
+                const notaEnColor = notaActual >= 7 ? notaString.green : notaString.red
+                console.log(`  Materia: ${materiaActual.blue} Nota: ${notaEnColor}`)
             }
         }
 
         if (materias.length > 0) {
-            const promedio = sumaNotas / materias.length
-            const promedioString = promedio.toFixed(2) 
+            const promedioFixed = promedio.toFixed(2) 
             const resultado = promedio >= 7 ? 'Aprobado'.green : 'Reprobado'.red
 
             console.log(`---------------------------------------------------------`.yellow)
-            console.log(`  Promedio: ${promedioString.blue} (${resultado})`)
+            console.log(`  Promedio: ${promedioFixed.blue} (${resultado})`)
+
+            if (promedio >= 7) {
+                totalAprobados++
+            } else {
+                totalReprobados++
+            }
+
         } else {
              console.log(`---------------------------------------------------------`.yellow)
              console.log(`  Promedio: No hay notas registradas`.grey)
@@ -121,6 +136,12 @@ const reporteDeNotas = () => {
         console.log(`*********************************************************`.yellow)
         console.log('')
     }
+    
+    console.log('---------- Resumen General ----------'.cyan)
+    console.log(` Total Aprobados:  ${totalAprobados}`.green)
+    console.log(` Total Reprobados: ${totalReprobados}`.red)
+    console.log(` Total Estudiantes: ${notas.length}`.blue)
+    console.log('-------------------------------------'.cyan)
 }
 
 const modificarNota = async () => { 
@@ -162,6 +183,8 @@ const modificarNota = async () => {
                 calificaciones[materiaIndex] = nuevaNota
                 notaModificada = true
                 console.log('Nota modificada correctamente.'.green)
+                const promedioModificado = calcularPromedio(calificaciones)
+                promedios[notas.indexOf(alumno)] = promedioModificado
                 break
             }
             
@@ -175,8 +198,23 @@ const modificarNota = async () => {
     }
 }
 
+const calcularPromedio = (calificaciones) => {
+    if (!calificaciones || calificaciones.length === 0) {
+        console.log("No hay calificaciones registradas".red);
+        return 0
+    }
+    let suma = 0
+
+    for (const nota of calificaciones) {
+        suma += nota
+    }
+    const promedio = suma / calificaciones.length
+    return promedio
+}
+
 const limpiarDatos = () => {
     notas = []
+    promedios = []
     console.log('Se han restablecido los datos correctamente'.green)
 }
 
